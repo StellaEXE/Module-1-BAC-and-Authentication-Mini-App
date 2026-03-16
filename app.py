@@ -1,36 +1,36 @@
-# Simple RBAC (Role-Based Access Control) Simulation
+# Simple Simulation of RBAC (Role-Based Access Control)
 
 # 1. Login Simulation (Hardcoded Users)
-users = {
-    "alice": {"role": "admin"},
-    "bob": {"role": "user"}
+USERS = {
+    "alice": "admin",
+    "bob": "user"
 }
 
-# Current session (Change this to "bob" to see access denied)
+# Current session (Change this to "bob" to see access change)
 current_user = "alice"
+current_role = USERS.get(current_user)
 
-def requires_role(required_role):
-    """Decorator to simulate access control logic."""
+# 2. Access Control Logic (The Gatekeeper)
+def requires_role(assigned_role):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            user_role = users.get(current_user, {}).get("role")
-            if user_role == required_role:
+            if current_role == assigned_role:
                 return func(*args, **kwargs)
             else:
-                print(f"[-] Access Denied for {current_user}: Requires {required_role} role.")
+                return f"403 Forbidden: {current_user} does not have {assigned_role} privileges."
         return wrapper
     return decorator
 
-# 2. Protected Actions
+# 3. Protected Routes
 @requires_role("admin")
 def delete_database():
-    print("[+] Admin Action: Database deleted successfully.")
+    return "Success: System records wiped by Admin."
 
 @requires_role("user")
 def view_dashboard():
-    print("[+] User Action: Dashboard displayed.")
+    return "Success: Welcome to your personal dashboard."
 
-# 3. Execution
-print(f"Logged in as: {current_user}")
-view_dashboard()
-delete_database()
+# Testing the logic
+print(f"Logged in as: {current_user} ({current_role})")
+print(f"Action 1: {view_dashboard()}")
+print(f"Action 2: {delete_database()}")
